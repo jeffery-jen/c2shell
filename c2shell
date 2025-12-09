@@ -48,8 +48,6 @@ kind: Pod
 metadata:
   namespace: default
   name: victim-b
-  annotations:
-    aws-samples.github.com/aws-pod-eip-controller-type: auto
 spec:
   containers:
     - name: reverse-shell
