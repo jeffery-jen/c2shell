@@ -12,7 +12,7 @@ fi
 echo "   └- Lets setup secondary attack with Legacy SA token to use with \"kubectl\"" >&3
 K8S_API_SERVER="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
 K8S_CLUSTER="local-current"
-SA_TOKEN="..."
+SA_TOKEN="SA_TOKEN"
 
 export KUBECONFIG="/tmp/sa-config.yaml"
 cat <<EOF > /tmp/sa-config.yaml
